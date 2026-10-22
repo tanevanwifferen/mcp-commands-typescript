@@ -1,0 +1,56 @@
+{
+  "name": "mcp-commands",
+  "version": "0.1.0",
+  "description": "MCP servers shaped like a CLI: a command tree behind two tools, help and run",
+  "main": "dist/index.js",
+  "scripts": {
+    "build": "tsc -p tsconfig.build.json",
+    "typecheck": "tsc --noEmit",
+    "test": "vitest run",
+    "example": "tsx examples/beads.ts",
+    "prepublishOnly": "npm run build"
+  },
+  "keywords": [
+    "mcp",
+    "model-context-protocol",
+    "cli",
+    "llm",
+    "agents"
+  ],
+  "license": "MIT",
+  "type": "module",
+  "dependencies": {
+    "@modelcontextprotocol/sdk": "^1.32.1"
+  },
+  "devDependencies": {
+    "@types/node": "^26.6.5",
+    "tsx": "^4.23.15",
+    "typescript": "^7.0.2",
+    "vitest": "^4.1.12",
+    "zod": "^4.6.7"
+  },
+  "types": "dist/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js"
+    }
+  },
+  "files": [
+    "dist",
+    "README.md",
+    "LICENSE"
+  ],
+  "peerDependencies": {
+    "zod": "^4.6.7"
+  },
+  "author": "Tane van Wifferen",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/tanevanwifferen/mcp-commands-typescript.git"
+  },
+  "homepage": "https://github.com/tanevanwifferen/mcp-commands-typescript#readme",
+  "bugs": {
+    "url": "https://github.com/tanevanwifferen/mcp-commands-typescript/issues"
+  }
+}
