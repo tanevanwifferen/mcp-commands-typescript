@@ -123,9 +123,11 @@ export class CliServer extends Group {
       helpDescription += "\n\n" + page.slice(page.indexOf("\n\n") + 2);
     }
 
+    const sample = help.example(this) ?? 'issue create "Title" --priority 1';
     const helpTool = this.mcp.registerTool(
       this.helpToolName,
       {
+        title: `${this.name}: list commands`,
         description: helpDescription,
         inputSchema: {
           path: z.string().default("").describe('Command path, e.g. "" for the root, "issue", "issue create".'),
@@ -146,11 +148,12 @@ export class CliServer extends Group {
     const runTool = this.mcp.registerTool(
       this.runToolName,
       {
-        description: help.USAGE,
+        title: `${this.name}: run a command`,
+        description: help.runDescription(this),
         inputSchema: {
           command: z
             .string()
-            .describe('One command line: path, arguments, options. E.g. issue create "Title" --priority 1'),
+            .describe(`One ${this.name} command line: path, arguments, options. E.g. ${sample}`),
           args: z
             .record(z.string(), z.unknown())
             .nullish()

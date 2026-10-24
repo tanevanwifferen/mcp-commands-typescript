@@ -148,6 +148,10 @@ describe("over MCP", () => {
     const { tools } = await client.listTools();
     expect(tools.map((t) => t.name)).toEqual(["help", "run"]);
     expect(tools[0].description).toContain("issue …");
+    expect(tools[1].title).toBe("beads: run a command");
+    expect(tools[1].description).toMatch(/^beads: Issue tracker\n\nRun a beads command\. Top-level commands: issue …, filter, ready\./);
+    expect(tools[1].description).toContain("e.g. issue create <title>.");
+    expect((tools[1].inputSchema.properties as any).command.description).toContain("One beads command line");
 
     const text = (r: any) => r.content[0].text as string;
     let r = await client.callTool({ name: "help", arguments: { path: "issue" } });

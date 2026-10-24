@@ -2,12 +2,58 @@
 
 import { Command, Group, type JsonSchema, Param } from "./tree.js";
 
-export const USAGE =
-  "Run a command with run(command, args?). The command is one line, like a shell: " +
-  'the command path, then positional arguments, then --options, e.g. issue create "Fix login" --priority 1. ' +
-  "Values are parsed as JSON when the parameter is not a string. " +
-  "Repeat an array option, or pass a JSON array (--tags '[\"a\",\"b\"]'). " +
-  "Structured values can go in args instead, as an object keyed by parameter name.";
+/** How to write a command line, with `example` as the sample. */
+export function usage(example: string): string {
+  return (
+    "Run a command with run(command, args?). The command is one line, like a shell: " +
+    `the command path, then positional arguments, then --options, e.g. ${example}. ` +
+    "Values are parsed as JSON when the parameter is not a string. " +
+    "Repeat an array option, or pass a JSON array (--tags '[\"a\",\"b\"]'). " +
+    "Structured values can go in args instead, as an object keyed by parameter name."
+  );
+}
+
+export const USAGE = usage('issue create "Fix login" --priority 1');
+
+/**
+ * A sample command line from the tree: the first command with a required argument (its
+ * path and required arguments as placeholders), else the first command.
+ */
+export function example(group: Group): string | undefined {
+  let first: string | undefined;
+  const queue: [Group, string[]][] = [[group, []]];
+  while (queue.length) {
+    const [node, path] = queue.shift()!;
+    for (const child of node.children.values()) {
+      if (child instanceof Group) {
+        queue.push([child, [...path, child.name]]);
+        continue;
+      }
+      const line = [...path, child.name].join(" ");
+      const required = child.params.filter((p) => p.positional && p.required).map((p) => `<${p.name}>`);
+      if (required.length) return [line, ...required].join(" ");
+      first ??= line;
+    }
+  }
+  return first;
+}
+
+/**
+ * The run tool's description: what the server is, its top-level commands and how to write
+ * a command line, so each server's run tool reads as its own.
+ */
+export function runDescription(group: Group): string {
+  const out = group.help ? [`${group.name}: ${group.help}`] : [];
+  const names = [...group.children.values()]
+    .map((c) => (c instanceof Group ? `${c.name} …` : c.name))
+    .join(", ");
+  let line = `Run a ${group.name} command.`;
+  if (names) line += ` Top-level commands: ${names}.`;
+  out.push(line + ' help("<command>") shows a command\'s arguments and options.');
+  const sample = example(group);
+  out.push(sample ? usage(sample) : USAGE);
+  return out.join("\n\n");
+}
 
 export function render(node: Group | Command, path: string[], depth = 1): string {
   return node instanceof Command ? renderCommand(node, path) : renderGroup(node, path, depth);
