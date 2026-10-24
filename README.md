@@ -12,7 +12,8 @@ model has done anything, and the cost grows with each tool you add. mcp-commands
 tool list at two however many commands you have. The model reads help for a command only when
 it is about to use it, the way you'd run `--help`.
 
-Also available for Python: [mcp-commands-python](https://github.com/tanevanwifferen/mcp-commands-python).
+Also available for Python: [mcp-commands-python](https://github.com/tanevanwifferen/mcp-commands-python)
+and Go: [mcp-commands-go](https://github.com/tanevanwifferen/mcp-commands-go).
 
 ## Install
 
