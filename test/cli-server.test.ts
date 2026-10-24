@@ -38,6 +38,11 @@ function makeApp(): CliServer {
     ({ labels }) => labels,
   );
 
+  app.command(
+    "filter",
+    { description: "Filter issues.", options: { where: z.object({ state: z.enum(["open", "closed"]), tags: z.array(z.string()).optional() }) } },
+    ({ where }) => where,
+  );
   app.command("ready", { description: "Show ready work." }, () => undefined);
   return app;
 }
@@ -97,6 +102,18 @@ describe("execute", () => {
     await expect(app.execute("issue create x high")).rejects.toThrow(UsageError);
     await expect(app.execute("issue")).rejects.toThrow(/is a group/);
     await expect(app.execute("issue create 'unterminated")).rejects.toThrow(/closing quotation/);
+  });
+
+  it("names types, paths and keys instead of echoing values", async () => {
+    const app = makeApp();
+    await expect(app.execute("issue create x high")).rejects.toThrow(/^priority: Invalid input: expected number \(got string\)/);
+    await expect(app.execute("issue create x", { deps: ["a", 1, true] })).rejects.toThrow(
+      /^deps\.1: Invalid input: expected string \(got integer\); deps\.2: Invalid input: expected string \(got boolean\)\n/,
+    );
+    await expect(app.execute("issue create", { title: { en: "x", nl: "y" } })).rejects.toThrow(
+      /^title: Invalid input: expected string \(got object \{en, nl\}\)/,
+    );
+    await expect(app.execute("filter", { where: { tags: ["a"] } })).rejects.toThrow(/^--where\.state: missing required property/);
   });
 
   it("answers --help inline", async () => {

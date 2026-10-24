@@ -206,9 +206,23 @@ function formatIssues(issues: z.core.$ZodIssue[], values: Record<string, unknown
       const label = param ? (param.positional ? param.name : param.flag) : (first ?? "?");
       const where = rest.length ? "." + rest.join(".") : "";
       const got = param ? lookupPath(values[param.name], rest) : undefined;
-      return `${label}${where}: ${issue.message} (got ${JSON.stringify(got)})`;
+      if (got === undefined) return `${label}${where}: missing required property`;
+      // The type of what was sent is given once, by describe.
+      const message = issue.message.replace(/, received \w+$/, "");
+      return `${label}${where}: ${message} (got ${describe(got)})`;
     })
     .join("; ");
+}
+
+/** The JSON type of a value for error messages, with an object's keys, rather than the value itself. */
+function describe(value: unknown): string {
+  if (value === null) return "null";
+  if (Array.isArray(value)) return "array";
+  if (typeof value === "number") return Number.isInteger(value) ? "integer" : "number";
+  if (typeof value !== "object") return typeof value;
+  const keys = Object.keys(value);
+  if (!keys.length) return "object";
+  return `object {${keys.length > 10 ? [...keys.slice(0, 10), "…"].join(", ") : keys.join(", ")}}`;
 }
 
 function lookupPath(value: unknown, path: string[]): unknown {
